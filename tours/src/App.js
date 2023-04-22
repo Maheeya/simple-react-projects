@@ -4,25 +4,18 @@ import './app.css'
 function App() {
 
 const [tours, setTours] = useState([])
+const [loading, setLoading] = useState(false)
 
-const url = 'https://course-api.com/react-tours-project'
+var url = 'https://course-api.com/react-tours-project'
 
 const removeTours = (id) => {
-  console.log('clicked')
-  /*
-  let newTours = tours
-  for (let i=0; i<newTours.length; i++ ){
-    if (newTours[i].id === id){
-      newTours.splice(i, 1);
-    }
-  }
-  */
   const newTours = tours.filter((tour) => tour.id !== id)
   setTours(newTours)
 }
 
 
-function fetchTours(url){
+function fetchTours(){
+  setLoading(true)
   const fetchPromise = fetch(url)
   fetchPromise.then(
     (result) => {
@@ -34,20 +27,40 @@ function fetchTours(url){
     (error) => {
       console.log('We have encountered an error')
     }
-  )
+  ).finally( () => {
+    setLoading(false)
+    
+  })
 }
 
 useEffect(() => {
   fetchTours(url)
 }, []) //empty array runs only on first render
 
-
+if (loading){
+  return(
+    <h1>Loading...</h1>
+  )
+}
+else if (tours.length === 0 & !loading){
   return (
-    <div className="App">
-    <Card tours={tours} removeTours={removeTours} />
+  <main>
+    <h1> Tours </h1>
+    <h2> No Tours available</h2>
+    <button className="btn" onClick={() => fetchTours()}>refresh</button>
+  </main>
+  )
+} else{
+  return (
+    <main>
+      <h1>Tours</h1>
+      <div className="App">
+      <Card tours={tours} removeTours={removeTours} />
 
-    </div>
+      </div>
+    </main>
   );
+}
 }
 
 export default App;
